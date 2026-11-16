@@ -1,28 +1,50 @@
 # swkotor-desktop
 
-Status: scaffold. No code yet.
+The desktop shell: a small Electron app that opens the Kolto launcher web app and gives it
+read-only access to a game folder the user picks. Written from scratch; it contains no launcher UI
+and no engine code of its own.
 
-The desktop shell: an Electron app that opens the `swkotor-web` launcher and gives the runtime direct,
-read-only access to the user's installed game.
+## What it does
 
-## Responsibility
+- Opens the launcher at a configured `https` URL (plain `http` only on localhost, for development).
+- Exposes `window.koltoDesktop` to the launcher page through a sandboxed preload:
+  - `pickGameFolder()` shows the native folder dialog and returns the folder's name only, never its
+    full path.
+  - `gameSource` is the `native-fs` `GameSource` from
+    [`kotor-runtime-api`](https://github.com/kolto-labs/kotor-runtime-api): `list`, `stat` and
+    `open`, all read-only.
+- Every path is confined to the picked folder, lexically and again after resolving symlinks, so
+  `../` and links that point outside the folder are refused.
+- IPC is answered only for the main window's top frame while it shows the launcher origin. Other
+  navigation and new windows are blocked; `https` links open in the system browser. All permission
+  requests (camera, notifications and so on) are denied.
 
-- Load a pinned build of `swkotor-web`. It contains no launcher UI of its own.
-- Provide the `native-fs` `GameSource` from `kotor-runtime-api` through a preload bridge
-  (`contextIsolation` on, `nodeIntegration` off).
-- Find installed Steam, GOG and disc copies.
-- Optionally start `swkotor-service`.
-- Package installers.
+## Configure the launcher URL
+
+The first source that is set wins:
+
+1. `--launcher-url=https://launcher.example` on the command line.
+2. The `KOLTO_LAUNCHER_URL` environment variable.
+3. `{"launcherUrl": "https://launcher.example"}` in `app-config.json` at the app root (git-ignored,
+   included when packaging).
+
+With none set, or an unacceptable value, the app shows a page explaining how to set it.
+
+## Develop
+
+```sh
+npm install
+npm run typecheck
+npm test
+KOLTO_LAUNCHER_URL=http://localhost:5173 npm start
+npm run package   # installers into release/
+```
 
 ## Not here
 
-Launcher pages and styles, the runtime, file format parsing.
-
-## Contract
-
-Implements `GameSource` (`kind: "native-fs"`). Consumes the launcher as a built artifact and the
-runtime through `kotor-runtime/1`. Will receive `src/electron`, `main.js` and `electron-builder.json`
-from `swkotor-web`.
+Launcher pages and styles, the runtime, file format parsing, detection of Steam or GOG installs,
+starting the optional background service. Those belong to the other repos; detection and the
+service hook may land here later.
 
 ## Where this fits
 
@@ -31,3 +53,5 @@ the roadmap are in [ARCHITECTURE.md](https://github.com/kolto-labs/swkotor-web/b
 
 No game files are distributed. Bring your own copy of KotOR I or II.
 Not affiliated with Lucasfilm, Disney, BioWare, Obsidian or Aspyr.
+
+MIT licence.
