@@ -1,0 +1,29 @@
+{
+  "name": "swkotor-desktop",
+  "productName": "Kolto Desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Electron desktop shell that opens the Kolto launcher web app and gives it read-only access to an installed game folder.",
+  "license": "MIT",
+  "author": "kolto-labs contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kolto-labs/swkotor-desktop.git"
+  },
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "npm run build && electron .",
+    "test": "tsx --test test/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "package": "npm run build && electron-builder"
+  },
+  "devDependencies": {
+    "@kolto-labs/kotor-runtime-api": "github:kolto-labs/kotor-runtime-api#claude/project-thread-d70zq6",
+    "@types/node": "^22.20.5",
+    "electron": "^45.3.2",
+    "electron-builder": "^26.18.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

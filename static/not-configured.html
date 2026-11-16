@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+  <title>Kolto Desktop: no launcher configured</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 3rem auto; padding: 0 1rem; line-height: 1.5; }
+    code { background: rgba(127, 127, 127, 0.15); padding: 0.1em 0.3em; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <h1>No launcher URL is configured</h1>
+  <p>Kolto Desktop opens a launcher web app, but it was not told where to find it, or the value it
+    was given is not an <code>https</code> URL (plain <code>http</code> is accepted on localhost only).</p>
+  <p>Set the URL in one of these ways; the first one set wins:</p>
+  <ol>
+    <li>Start the app with <code>--launcher-url=https://launcher.example</code>.</li>
+    <li>Set the environment variable <code>KOLTO_LAUNCHER_URL</code>.</li>
+    <li>Put <code>{"launcherUrl": "https://launcher.example"}</code> in <code>app-config.json</code>
+      before packaging.</li>
+  </ol>
+</body>
+</html>
