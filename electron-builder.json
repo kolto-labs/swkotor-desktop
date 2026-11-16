@@ -1,0 +1,19 @@
+{
+  "appId": "org.koltolabs.desktop",
+  "productName": "Kolto Desktop",
+  "directories": {
+    "output": "release"
+  },
+  "files": ["dist/**/*", "static/**/*", "package.json", "app-config.json", "!dist/**/*.map"],
+  "linux": {
+    "target": ["AppImage"],
+    "category": "Game"
+  },
+  "win": {
+    "target": ["nsis"]
+  },
+  "mac": {
+    "target": ["dmg"],
+    "category": "public.app-category.games"
+  }
+}
