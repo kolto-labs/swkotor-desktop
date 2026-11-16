@@ -3,6 +3,7 @@ import { realpath } from "node:fs/promises";
 import path from "node:path";
 import { app, BrowserWindow, dialog, ipcMain, session, shell, type IpcMainInvokeEvent } from "electron";
 import type { Channel, PickedFolder } from "../shared/api";
+import { PathEscapeError } from "./confine";
 import { NativeGameFolder } from "./game-source";
 import { resolveLauncherUrl } from "./launcher-url";
 import { isLauncherUrl, isSafeExternalUrl } from "./navigation";
@@ -47,10 +48,22 @@ function requireFolder(): NativeGameFolder {
   return gameFolder;
 }
 
+function publicErrorMessage(err: unknown): string {
+  if (err instanceof PathEscapeError) return "Path is outside the game folder";
+  const code = (err as NodeJS.ErrnoException)?.code;
+  if (typeof code === "string") return code;
+  return err instanceof Error && err.message === "No game folder has been picked" ? err.message : "Request failed";
+}
+
 function handle(channel: Channel, fn: (event: IpcMainInvokeEvent, ...args: unknown[]) => unknown): void {
-  ipcMain.handle(channel, (event, ...args) => {
+  ipcMain.handle(channel, async (event, ...args) => {
     assertTrustedSender(event);
-    return fn(event, ...args);
+    try {
+      return await fn(event, ...args);
+    } catch (err) {
+      // fs errors carry the absolute path on disk; the page only ever learns the error code.
+      throw new Error(publicErrorMessage(err));
+    }
   });
 }
 
